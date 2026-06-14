@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Readpile">
+<title>Readpile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #F7F6F2;
+  --surface:   #FFFFFF;
+  --border:    #E4E3DF;
+  --border2:   #D0CFC9;
+  --ink:       #1C1C1E;
+  --ink-mid:   #6B6A66;
+  --ink-dim:   #A8A7A2;
+  --accent:    #FF6B4A;
+  --accent-lt: #FFF0EC;
+  --accent-dk: #D94F31;
+  --tag-bg:    #EEEDE9;
+  --tag-txt:   #5A5955;
+  --read-op:   0.45;
+  --r:         12px;
+  --r-sm:      8px;
+  --shadow:    0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
+  --ff-body:   'Inter', system-ui, sans-serif;
+  --ff-disp:   'Fraunces', Georgia, serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ff-body);
+  font-size: 14px;
+  line-height: 1.5;
+  min-height: 100dvh;
+  padding-bottom: 40px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── HEADER ── */
+.header {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(247,246,242,.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 56px;
+  display: flex; align-items: center; gap: 14px;
+}
+
+.logo {
+  font-family: var(--ff-disp);
+  font-size: 22px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--ink);
+  letter-spacing: -0.03em;
+  flex-shrink: 0;
+}
+.logo em { color: var(--accent); font-style: normal; }
+
+.search-wrap {
+  flex: 1; max-width: 320px;
+  position: relative;
+}
+.search-wrap svg {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-dim); pointer-events: none;
+}
+#searchInput {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--ink);
+  font-family: var(--ff-body);
+  font-size: 13px;
+  padding: 7px 14px 7px 32px;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+}
+#searchInput::placeholder { color: var(--ink-dim); }
+#searchInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,107,74,.12); }
+
+.header-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+.view-toggle {
+  display: flex; gap: 2px;
+  background: var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.vbtn {
+  width: 28px; height: 28px;
+  border: none; background: transparent;
+  border-radius: 6px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  color: var(--ink-mid);
+  transition: all .15s;
+}
+.vbtn.active { background: var(--surface); color: var(--ink); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+/* ── ADD BAR ── */
+.add-bar {
+  padding: 16px 20px 0;
+}
+.add-form {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  box-shadow: var(--shadow);
+  transition: border-color .15s, box-shadow .15s;
+}
+.add-form:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255,107,74,.1), var(--shadow);
+}
+.add-form input {
+  flex: 1; min-width: 160px;
+  border: none; outline: none;
+  background: transparent;
+  font-family: var(--ff-body);
+  font-size: 14px;
+  color: var(--ink);
+}
+.add-form input::placeholder { color: var(--ink-dim); }
+.add-form .divider { width: 1px; background: var(--border); align-self: stretch; }
+.add-form input.title-inp { max-width: 200px; font-size: 13px; }
+
+.add-row-right { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+
+/* tag input */
+.tag-input-wrap { position: relative; }
+#tagInput {
+  border: none; outline: none; background: transparent;
+  font-family: var(--ff-body); font-size: 12px; color: var(--ink-mid);
+  width: 100px;
+}
+#tagInput::placeholder { color: var(--ink-dim); font-size: 12px; }
+
+.btn {
+  font-family: var(--ff-body); font-size: 13px; font-weight: 600;
+  border: none; border-radius: 8px;
+  cursor: pointer; padding: 8px 18px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent-dk); }
+.btn-primary:active { transform: scale(.97); }
+
+/* ── TAG FILTER BAR ── */
+.tag-bar {
+  padding: 14px 20px 0;
+  display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+}
+.chip {
+  font-family: var(--ff-body); font-size: 12px; font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 100px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-mid);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip.tag-chip { background: var(--tag-bg); border-color: transparent; color: var(--tag-txt); }
+.chip.tag-chip.active { background: var(--accent); color: #fff; }
+
+/* ── TOOLBAR ── */
+.toolbar {
+  padding: 14px 20px 0;
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap;
+}
+.toolbar-label {
+  font-size: 12px; font-weight: 600;
+  color: var(--ink-dim);
+  letter-spacing: .03em;
+  text-transform: uppercase;
+}
+.toolbar-right { margin-left: auto; display: flex; gap: 6px; }
+.icon-btn-sm {
+  font-size: 12px; font-weight: 500;
+  padding: 5px 12px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-mid);
+  cursor: pointer;
+  display: flex; align-items: center; gap: 5px;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.icon-btn-sm:hover { border-color: var(--border2); color: var(--ink); }
+.icon-btn-sm.danger:hover { border-color: #ff3b30; color: #ff3b30; }
+
+/* ── GRID / LIST ── */
+#grid {
+  padding: 16px 20px 0;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+#grid.list-view {
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  display: flex; flex-direction: column;
+  transition: box-shadow .2s, border-color .2s, opacity .2s;
+  position: relative;
+  cursor: default;
+}
+.card:hover { box-shadow: var(--shadow-lg); border-color: var(--border2); }
+.card.read { opacity: var(--read-op); }
+.card.read:hover { opacity: .7; }
+.card.selected { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255,107,74,.15); }
+
+/* thumbnail */
+.card-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  background: var(--tag-bg);
+  position: relative; overflow: hidden;
+  flex-shrink: 0;
+}
+.card-thumb img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: opacity .3s;
+}
+.card-thumb .favicon {
+  position: absolute; bottom: 8px; left: 8px;
+  width: 20px; height: 20px; border-radius: 4px;
+  background: var(--surface); padding: 2px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.15);
+}
+.card-thumb .thumb-placeholder {
+  width: 100%; height: 100%;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  color: var(--ink-dim);
+  font-size: 28px;
+}
+.card-thumb .thumb-placeholder span {
+  font-size: 11px; font-weight: 500;
+  color: var(--ink-dim); letter-spacing: .03em;
+}
+
+/* read ribbon */
+.read-ribbon {
+  position: absolute; top: 8px; right: 8px;
+  background: rgba(28,28,30,.7);
+  color: #fff;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: .05em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 100px;
+  backdrop-filter: blur(4px);
+  display: none;
+}
+.card.read .read-ribbon { display: block; }
+
+/* card body */
+.card-body { padding: 14px; flex: 1; display: flex; flex-direction: column; gap: 6px; }
+
+.card-domain {
+  font-size: 11px; font-weight: 500;
+  color: var(--accent); letter-spacing: .02em;
+  display: flex; align-items: center; gap: 5px;
+}
+.card-domain img { width: 12px; height: 12px; border-radius: 2px; }
+
+.card-title {
+  font-family: var(--ff-disp);
+  font-size: 16px; font-weight: 700;
+  line-height: 1.3;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-desc {
+  font-size: 12px; color: var(--ink-mid); line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-tags {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px;
+}
+.card-tag {
+  font-size: 10px; font-weight: 500;
+  background: var(--tag-bg); color: var(--tag-txt);
+  padding: 2px 8px; border-radius: 100px;
+  cursor: pointer; border: none;
+  transition: background .12s;
+}
+.card-tag:hover { background: var(--accent-lt); color: var(--accent); }
+
+.card-footer {
+  padding: 0 14px 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+.card-time { font-size: 11px; color: var(--ink-dim); }
+.card-actions-row {
+  margin-left: auto; display: flex; gap: 4px;
+}
+.act-btn {
+  width: 30px; height: 30px;
+  border-radius: 7px;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--ink-mid);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.act-btn:hover { background: var(--tag-bg); color: var(--ink); border-color: var(--border2); }
+.act-btn.done { background: var(--accent-lt); color: var(--accent); border-color: var(--accent); }
+.act-btn.del:hover { background: #fff0f0; color: #ff3b30; border-color: #ffb3b0; }
+.act-btn.open-link { text-decoration: none; font-size: 15px; }
+
+/* ── LIST VIEW CARD ── */
+#grid.list-view .card {
+  flex-direction: row;
+  align-items: stretch;
+}
+#grid.list-view .card-thumb {
+  width: 100px; min-width: 100px;
+  aspect-ratio: unset; height: auto;
+  border-radius: 0;
+}
+#grid.list-view .card-thumb .thumb-placeholder { font-size: 20px; }
+#grid.list-view .card-thumb .thumb-placeholder span { display: none; }
+#grid.list-view .card-body { padding: 10px 12px; gap: 4px; }
+#grid.list-view .card-title { font-size: 14px; -webkit-line-clamp: 2; }
+#grid.list-view .card-desc { display: none; }
+#grid.list-view .card-footer { padding: 0 12px 10px; }
+#grid.list-view .read-ribbon { top: 6px; right: 6px; font-size: 9px; padding: 2px 6px; }
+
+/* ── DRAG HANDLE ── */
+.drag-handle {
+  position: absolute; top: 8px; left: 8px;
+  width: 20px; height: 20px;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255,255,255,.6);
+  cursor: grab;
+  opacity: 0;
+  transition: opacity .15s;
+  z-index: 2;
+}
+.card:hover .drag-handle { opacity: 1; }
+.card.dragging { opacity: .5; box-shadow: var(--shadow-lg); }
+
+/* ── EMPTY ── */
+.empty {
+  text-align: center; padding: 64px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+}
+.empty-icon { font-size: 48px; line-height: 1; }
+.empty-title { font-family: var(--ff-disp); font-size: 22px; font-weight: 700; color: var(--ink); }
+.empty-sub { font-size: 13px; color: var(--ink-mid); max-width: 280px; line-height: 1.6; }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--ink); color: #fff;
+  font-size: 13px; font-weight: 500;
+  padding: 10px 20px; border-radius: 100px;
+  z-index: 999; pointer-events: none;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── MODAL (edit / tag) ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(28,28,30,.35);
+  backdrop-filter: blur(4px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 20px 36px;
+  width: 100%; max-width: 560px;
+  transform: translateY(100%);
+  transition: transform .3s cubic-bezier(.32,1,.23,1);
+  box-shadow: 0 -4px 40px rgba(0,0,0,.15);
+}
+.overlay.open .modal { transform: translateY(0); }
+.modal-handle {
+  width: 36px; height: 4px; border-radius: 2px;
+  background: var(--border2); margin: 0 auto 18px;
+}
+.modal h3 { font-family: var(--ff-disp); font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.field { margin-bottom: 14px; }
+.field label { display: block; font-size: 12px; font-weight: 600; color: var(--ink-mid); margin-bottom: 6px; letter-spacing: .03em; text-transform: uppercase; }
+.field input, .field textarea {
+  width: 100%;
+  border: 1.5px solid var(--border);
+  border-radius: var(--r-sm);
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--ff-body);
+  font-size: 14px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .15s;
+  resize: vertical;
+}
+.field input:focus, .field textarea:focus { border-color: var(--accent); }
+.modal-actions { display: flex; gap: 8px; margin-top: 20px; }
+.modal-actions .btn { flex: 1; padding: 12px; font-size: 14px; border-radius: var(--r-sm); }
+.btn-secondary { background: var(--tag-bg); color: var(--ink); }
+.btn-secondary:hover { background: var(--border2); }
+
+/* ── CONTEXT MENU ── */
+.ctx-menu {
+  position: fixed; z-index: 600;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--r);
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  overflow: hidden;
+  opacity: 0; pointer-events: none;
+  transform: scale(.95);
+  transform-origin: top left;
+  transition: opacity .12s, transform .12s;
+}
+.ctx-menu.open { opacity: 1; pointer-events: all; transform: scale(1); }
+.ctx-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  color: var(--ink);
+  transition: background .1s;
+  border: none; background: transparent; width: 100%; text-align: left;
+}
+.ctx-item:hover { background: var(--bg); }
+.ctx-item.danger { color: #ff3b30; }
+.ctx-item.danger:hover { background: #fff0f0; }
+.ctx-sep { height: 1px; background: var(--border); margin: 4px 0; }
+
+/* ── INCOMING ── */
+.incoming {
+  margin: 14px 20px 0;
+  background: var(--accent-lt);
+  border: 1.5px solid rgba(255,107,74,.25);
+  border-radius: var(--r-sm);
+  padding: 12px 16px;
+  font-size: 13px; color: var(--accent);
+  display: flex; align-items: center; gap: 10px;
+  display: none;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 520px) {
+  #grid { grid-template-columns: 1fr; }
+  .add-form input.title-inp { max-width: 100%; }
+  .search-wrap { display: none; }
+}
+
+/* sort handle cursor */
+.card[draggable="true"] { cursor: default; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">read<em>pile</em></div>
+  <div class="search-wrap">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="search" id="searchInput" placeholder="Search articles…">
+  </div>
+  <div class="header-right">
+    <div class="view-toggle">
+      <button class="vbtn active" id="vGrid" onclick="setView('grid')" title="Grid view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+      </button>
+      <button class="vbtn" id="vList" onclick="setView('list')" title="List view">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- INCOMING BANNER -->
+<div class="incoming" id="incoming">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  <span id="incomingTxt">Saving link…</span>
+</div>
+
+<!-- ADD BAR -->
+<div class="add-bar">
+  <div class="add-form" id="addForm">
+    <input type="url" id="urlInput" placeholder="Paste a URL to save…" inputmode="url" autocomplete="off" autocorrect="off" spellcheck="false">
+    <div class="divider"></div>
+    <input class="title-inp" type="text" id="titleInput" placeholder="Title (optional)">
+    <div class="divider"></div>
+    <input type="text" id="tagInput" placeholder="# tag (optional)">
+    <div class="add-row-right">
+      <button class="btn btn-primary" onclick="addFromForm()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TAG / FILTER BAR -->
+<div class="tag-bar" id="tagBar">
+  <button class="chip active" data-filter="all" onclick="setFilter('all',this)">All</button>
+  <button class="chip" data-filter="unread" onclick="setFilter('unread',this)">Unread</button>
+  <button class="chip" data-filter="read" onclick="setFilter('read',this)">Read</button>
+</div>
+
+<!-- TOOLBAR -->
+<div class="toolbar">
+  <span class="toolbar-label" id="toolbarLabel">0 articles</span>
+  <div class="toolbar-right">
+    <button class="icon-btn-sm" onclick="markAllRead()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      Mark all read
+    </button>
+    <button class="icon-btn-sm danger" onclick="clearRead()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+      Clear read
+    </button>
+  </div>
+</div>
+
+<!-- GRID -->
+<div id="grid"></div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- EDIT MODAL -->
+<div class="overlay" id="editOverlay" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Edit article</h3>
+    <div class="field">
+      <label>Title</label>
+      <input type="text" id="editTitle">
+    </div>
+    <div class="field">
+      <label>URL</label>
+      <input type="url" id="editUrl">
+    </div>
+    <div class="field">
+      <label>Tags (comma separated)</label>
+      <input type="text" id="editTags" placeholder="e.g. design, tech, ai">
+    </div>
+    <div class="field">
+      <label>Notes</label>
+      <textarea id="editNotes" rows="3" placeholder="Any notes…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()">Save changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTEXT MENU -->
+<div class="ctx-menu" id="ctxMenu">
+  <button class="ctx-item" id="ctxOpen">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    Open link
+  </button>
+  <button class="ctx-item" id="ctxToggleRead">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+    Mark as read
+  </button>
+  <button class="ctx-item" id="ctxEdit">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+    Edit
+  </button>
+  <button class="ctx-item" id="ctxCopyUrl">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+    Copy URL
+  </button>
+  <div class="ctx-sep"></div>
+  <button class="ctx-item danger" id="ctxDelete">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+    Delete
+  </button>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────
+// STATE
+// ────────────────────────────────────────────────────────
+const STORAGE_KEY = 'readpile_v2';
+let items = [];
+let currentFilter = 'all';
+let currentTag = null;
+let currentSearch = '';
+let viewMode = 'grid'; // grid | list
+let editId = null;
+let ctxId = null;
+
+// drag state
+let dragSrc = null;
+
+// ────────────────────────────────────────────────────────
+// PERSISTENCE
+// ────────────────────────────────────────────────────────
+function persist() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(items)); } catch(e){}
+}
+function hydrate() {
+  try { items = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e){ items=[]; }
+}
+
+// ────────────────────────────────────────────────────────
+// HELPERS
+// ────────────────────────────────────────────────────────
+function getDomain(url) {
+  try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return url.slice(0,30); }
+}
+function getOrigin(url) {
+  try { return new URL(url).origin; } catch { return ''; }
+}
+
+function faviconUrl(url) {
+  try {
+    const origin = new URL(url).origin;
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(origin)}&sz=32`;
+  } catch { return ''; }
+}
+
+function ogImageUrl(url) {
+  // Use a free OG meta proxy to get thumbnail
+  return `https://api.microlink.io/?url=${encodeURIComponent(url)}&screenshot=true&meta=false&embed=screenshot.url`;
+}
+
+function relTime(ts) {
+  const d = Date.now() - ts;
+  if (d < 60000) return 'just now';
+  if (d < 3600000) return Math.floor(d/60000) + 'm ago';
+  if (d < 86400000) return Math.floor(d/3600000) + 'h ago';
+  if (d < 604800000) return Math.floor(d/86400000) + 'd ago';
+  return new Date(ts).toLocaleDateString('en-US',{month:'short',day:'numeric'});
+}
+
+function parseTags(str) {
+  if (!str) return [];
+  return str.split(/[,\s]+/).map(t=>t.replace(/^#/,'').trim().toLowerCase()).filter(Boolean);
+}
+
+function allTags() {
+  const set = new Set();
+  items.forEach(i => (i.tags||[]).forEach(t => set.add(t)));
+  return [...set].sort();
+}
+
+function domainIcon(url) {
+  const domain = getDomain(url);
+  const icons = {
+    'youtube.com':'▶', 'youtu.be':'▶',
+    'twitter.com':'𝕏', 'x.com':'𝕏',
+    'github.com':'⌥',
+    'reddit.com':'◉',
+    'medium.com':'M',
+    'substack.com':'S',
+  };
+  return icons[domain] || '◈';
+}
+
+function esc(str) {
+  return String(str||'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+function showToast(msg, duration=2000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(()=>t.classList.remove('show'), duration);
+}
+
+// ────────────────────────────────────────────────────────
+// ADD
+// ────────────────────────────────────────────────────────
+function addItem(url, title, tags=[]) {
+  url = url.trim();
+  if (!url) return null;
+  if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+  if (items.find(i => i.url === url)) return 'dupe';
+  const item = {
+    id: Date.now().toString(36) + Math.random().toString(36).slice(2,6),
+    url, title: title?.trim() || getDomain(url),
+    tags, read: false, ts: Date.now(),
+    thumb: null, notes: ''
+  };
+  items.unshift(item);
+  persist();
+  // async fetch OG image
+  fetchThumb(item.id, url);
+  return item;
+}
+
+function addFromForm() {
+  const url = document.getElementById('urlInput').value;
+  const title = document.getElementById('titleInput').value;
+  const tags = parseTags(document.getElementById('tagInput').value);
+  const res = addItem(url, title, tags);
+  if (res === 'dupe') { showToast('Already saved'); return; }
+  if (!res) { showToast('Enter a valid URL'); return; }
+  document.getElementById('urlInput').value = '';
+  document.getElementById('titleInput').value = '';
+  document.getElementById('tagInput').value = '';
+  showToast('✓ Saved!');
+  render();
+}
+
+// ────────────────────────────────────────────────────────
+// THUMBNAIL FETCHING — multi-source with fallbacks
+// ────────────────────────────────────────────────────────
+
+// Instantly render a branded placeholder using favicon + domain colors
+function colorFromDomain(domain) {
+  let hash = 0;
+  for (let i = 0; i < domain.length; i++) hash = domain.charCodeAt(i) + ((hash << 5) - hash);
+  const hue = Math.abs(hash) % 360;
+  return `hsl(${hue},40%,88%)`;
+}
+
+function fallbackThumb(domain, url) {
+  const bg = colorFromDomain(domain);
+  const fav = url ? faviconUrl(url) : '';
+  return `<div class="thumb-placeholder" style="background:${bg}">
+    ${fav ? `<img src="${fav}" style="width:40px;height:40px;border-radius:10px;object-fit:contain" onerror="this.remove()">` : ''}
+    <span>${esc(domain)}</span>
+  </div><div class="read-ribbon">Read</div>`;
+}
+
+function setThumbEl(id, imgUrl, item, url) {
+  const el = document.getElementById('thumb-'+id);
+  if (!el) return;
+  el.innerHTML = `<img src="${esc(imgUrl)}" alt="" loading="lazy"
+    onerror="this.parentElement.innerHTML=fallbackThumb('${esc(getDomain(url))}','${esc(url)}')">
+    <img class="favicon" src="${esc(faviconUrl(url))}" alt="" onerror="this.remove()">
+    <div class="read-ribbon">Read</div>`;
+}
+
+async function fetchThumb(id, url) {
+  const item = items.find(i=>i.id===id);
+  if (!item) return;
+  const domain = getDomain(url);
+
+  // Show branded placeholder immediately while fetching
+  const el = document.getElementById('thumb-'+id);
+  if (el && !item.thumb) {
+    el.innerHTML = fallbackThumb(domain, url);
+  }
+
+  // Source 1: microlink.io — best metadata + OG image
+  try {
+    const res = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(url)}`);
+    const data = await res.json();
+    if (data.status === 'success') {
+      const imgUrl = data.data?.image?.url || data.data?.logo?.url || null;
+      if (data.data?.title && item.title === domain) {
+        item.title = data.data.title;
+        const titleEl = document.getElementById('title-'+id);
+        if (titleEl) titleEl.textContent = item.title;
+      }
+      item.desc = data.data?.description || '';
+      if (imgUrl) {
+        item.thumb = imgUrl;
+        persist();
+        setThumbEl(id, imgUrl, item, url);
+        return; // success — done
+      }
+    }
+  } catch(e) {}
+
+  // Source 2: open graph via allorigins proxy (fetches actual page HTML)
+  try {
+    const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxy);
+    const data = await res.json();
+    if (data.contents) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(data.contents, 'text/html');
+      const ogImg = doc.querySelector('meta[property="og:image"]')?.getAttribute('content')
+                 || doc.querySelector('meta[name="twitter:image"]')?.getAttribute('content');
+      const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute('content')
+                   || doc.querySelector('title')?.textContent;
+      const ogDesc = doc.querySelector('meta[property="og:description"]')?.getAttribute('content')
+                  || doc.querySelector('meta[name="description"]')?.getAttribute('content');
+      if (ogTitle && item.title === domain) {
+        item.title = ogTitle.trim();
+        const titleEl = document.getElementById('title-'+id);
+        if (titleEl) titleEl.textContent = item.title;
+      }
+      if (ogDesc) item.desc = ogDesc.trim();
+      if (ogImg) {
+        // resolve relative URLs
+        const resolved = ogImg.startsWith('http') ? ogImg : new URL(ogImg, url).href;
+        item.thumb = resolved;
+        persist();
+        setThumbEl(id, resolved, item, url);
+        return;
+      }
+    }
+  } catch(e) {}
+
+  // Source 3: screenshot via screenshotone (free, no key needed for basic)
+  try {
+    const ssUrl = `https://shot.screenshotapi.net/screenshot?url=${encodeURIComponent(url)}&width=800&height=450&output=image&file_type=png&wait_for_event=load`;
+    item.thumb = ssUrl;
+    persist();
+    setThumbEl(id, ssUrl, item, url);
+    return;
+  } catch(e) {}
+
+  // All sources failed — keep branded placeholder, save desc if found
+  persist();
+}
+
+// ────────────────────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────────────────────
+function filtered() {
+  let list = [...items];
+  if (currentFilter === 'unread') list = list.filter(i=>!i.read);
+  if (currentFilter === 'read')   list = list.filter(i=> i.read);
+  if (currentTag) list = list.filter(i=>(i.tags||[]).includes(currentTag));
+  if (currentSearch) {
+    const q = currentSearch.toLowerCase();
+    list = list.filter(i =>
+      i.title.toLowerCase().includes(q) ||
+      i.url.toLowerCase().includes(q) ||
+      (i.desc||'').toLowerCase().includes(q) ||
+      (i.tags||[]).some(t=>t.includes(q))
+    );
+  }
+  return list;
+}
+
+function render() {
+  const grid = document.getElementById('grid');
+  const list = filtered();
+  const unread = items.filter(i=>!i.read).length;
+
+  // toolbar
+  const lbl = currentSearch ? `${list.length} result${list.length!==1?'s':''}` :
+    currentFilter==='all' ? `${items.length} article${items.length!==1?'s':''}` :
+    `${list.length} ${currentFilter}`;
+  document.getElementById('toolbarLabel').textContent = lbl;
+
+  // tag bar
+  renderTagBar();
+
+  if (!list.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="empty-icon">📚</div>
+      <div class="empty-title">${currentSearch ? 'No results' : currentFilter==='read' ? 'Nothing read yet' : 'Your pile is empty'}</div>
+      <div class="empty-sub">${currentSearch ? 'Try a different search term.' : 'Paste a URL above or share from your phone to get started.'}</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = list.map(item => cardHTML(item)).join('');
+
+  // bind drag
+  grid.querySelectorAll('.card').forEach(bindDrag);
+}
+
+function cardHTML(item) {
+  const domain = getDomain(item.url);
+  const tags = (item.tags||[]).map(t =>
+    `<button class="card-tag" onclick="filterByTag('${esc(t)}')">#${esc(t)}</button>`
+  ).join('');
+
+  const thumbContent = item.thumb
+    ? `<img src="${esc(item.thumb)}" alt="" loading="lazy" onerror="this.parentElement.innerHTML=fallbackThumb('${esc(domain)}','${esc(item.url)}')">
+       <img class="favicon" src="${esc(faviconUrl(item.url))}" alt="" onerror="this.remove()">
+       <div class="read-ribbon">Read</div>`
+    : fallbackThumb(domain, item.url);
+
+  return `<div class="card${item.read?' read':''}" data-id="${item.id}"
+    draggable="true"
+    oncontextmenu="openCtx(event,'${item.id}')">
+    <div class="drag-handle">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="6" r="1.5" fill="currentColor"/><circle cx="15" cy="6" r="1.5" fill="currentColor"/><circle cx="9" cy="12" r="1.5" fill="currentColor"/><circle cx="15" cy="12" r="1.5" fill="currentColor"/><circle cx="9" cy="18" r="1.5" fill="currentColor"/><circle cx="15" cy="18" r="1.5" fill="currentColor"/></svg>
+    </div>
+    <div class="card-thumb" id="thumb-${item.id}">${thumbContent}</div>
+    <div class="card-body">
+      <div class="card-domain">
+        <img src="${esc(faviconUrl(item.url))}" alt="" onerror="this.remove()">
+        ${esc(domain)}
+      </div>
+      <div class="card-title" id="title-${item.id}">${esc(item.title)}</div>
+      ${item.desc ? `<div class="card-desc">${esc(item.desc)}</div>` : ''}
+      ${tags ? `<div class="card-tags">${tags}</div>` : ''}
+    </div>
+    <div class="card-footer">
+      <span class="card-time">${relTime(item.ts)}</span>
+      <div class="card-actions-row">
+        <a class="act-btn open-link" href="${esc(item.url)}" target="_blank" rel="noopener" title="Open">↗</a>
+        <button class="act-btn${item.read?' done':''}" onclick="toggleRead('${item.id}')" title="${item.read?'Mark unread':'Mark read'}">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        </button>
+        <button class="act-btn" onclick="openEdit('${item.id}')" title="Edit">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="act-btn del" onclick="deleteItem('${item.id}')" title="Delete">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderTagBar() {
+  const bar = document.getElementById('tagBar');
+  const tags = allTags();
+  // rebuild static chips + tag chips
+  const statics = ['all','unread','read'].map(f =>
+    `<button class="chip${currentFilter===f&&!currentTag?' active':''}" data-filter="${f}" onclick="setFilter('${f}',this)">${f.charAt(0).toUpperCase()+f.slice(1)}</button>`
+  ).join('');
+  const tagChips = tags.map(t =>
+    `<button class="chip tag-chip${currentTag===t?' active':''}" onclick="filterByTag('${esc(t)}')">#${esc(t)}</button>`
+  ).join('');
+  bar.innerHTML = statics + tagChips;
+}
+
+// ────────────────────────────────────────────────────────
+// ACTIONS
+// ────────────────────────────────────────────────────────
+function toggleRead(id) {
+  const item = items.find(i=>i.id===id);
+  if (!item) return;
+  item.read = !item.read;
+  persist(); render();
+}
+
+function deleteItem(id) {
+  items = items.filter(i=>i.id!==id);
+  persist(); render();
+  showToast('Deleted');
+}
+
+function markAllRead() {
+  filtered().forEach(i=>{ const it=items.find(x=>x.id===i.id); if(it) it.read=true; });
+  persist(); render();
+  showToast('Marked all as read');
+}
+
+function clearRead() {
+  const n = items.filter(i=>i.read).length;
+  if (!n) { showToast('No read articles'); return; }
+  items = items.filter(i=>!i.read);
+  persist(); render();
+  showToast(`Removed ${n} read article${n>1?'s':''}`);
+}
+
+// ────────────────────────────────────────────────────────
+// FILTERS / SEARCH
+// ────────────────────────────────────────────────────────
+function setFilter(f, el) {
+  currentFilter = f; currentTag = null;
+  render();
+}
+
+function filterByTag(tag) {
+  currentTag = currentTag === tag ? null : tag;
+  currentFilter = 'all';
+  render();
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  currentSearch = e.target.value.trim();
+  render();
+});
+
+// ────────────────────────────────────────────────────────
+// VIEW
+// ────────────────────────────────────────────────────────
+function setView(v) {
+  viewMode = v;
+  const grid = document.getElementById('grid');
+  grid.classList.toggle('list-view', v==='list');
+  document.getElementById('vGrid').classList.toggle('active', v==='grid');
+  document.getElementById('vList').classList.toggle('active', v==='list');
+  render();
+}
+
+// ────────────────────────────────────────────────────────
+// EDIT MODAL
+// ────────────────────────────────────────────────────────
+function openEdit(id) {
+  editId = id;
+  const item = items.find(i=>i.id===id);
+  if (!item) return;
+  document.getElementById('editTitle').value = item.title;
+  document.getElementById('editUrl').value = item.url;
+  document.getElementById('editTags').value = (item.tags||[]).join(', ');
+  document.getElementById('editNotes').value = item.notes||'';
+  document.getElementById('editOverlay').classList.add('open');
+}
+function closeEditModal() {
+  document.getElementById('editOverlay').classList.remove('open');
+  editId = null;
+}
+function closeModal(e) {
+  if (e.target === document.getElementById('editOverlay')) closeEditModal();
+}
+function saveEdit() {
+  const item = items.find(i=>i.id===editId);
+  if (!item) return;
+  item.title = document.getElementById('editTitle').value.trim() || item.title;
+  item.url = document.getElementById('editUrl').value.trim() || item.url;
+  item.tags = parseTags(document.getElementById('editTags').value);
+  item.notes = document.getElementById('editNotes').value.trim();
+  persist(); closeEditModal(); render();
+  showToast('Saved');
+}
+
+// ────────────────────────────────────────────────────────
+// CONTEXT MENU
+// ────────────────────────────────────────────────────────
+function openCtx(e, id) {
+  e.preventDefault();
+  ctxId = id;
+  const item = items.find(i=>i.id===id);
+  if (!item) return;
+  const menu = document.getElementById('ctxMenu');
+  document.getElementById('ctxToggleRead').innerHTML = item.read
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Mark as unread`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg> Mark as read`;
+
+  let x = e.clientX, y = e.clientY;
+  if (x + 200 > window.innerWidth) x = window.innerWidth - 210;
+  if (y + 200 > window.innerHeight) y = window.innerHeight - 210;
+  menu.style.left = x+'px'; menu.style.top = y+'px';
+  menu.classList.add('open');
+}
+
+document.getElementById('ctxOpen').onclick = () => {
+  const item = items.find(i=>i.id===ctxId); if(item) window.open(item.url,'_blank');
+  closeCtx();
+};
+document.getElementById('ctxToggleRead').onclick = () => { toggleRead(ctxId); closeCtx(); };
+document.getElementById('ctxEdit').onclick = () => { openEdit(ctxId); closeCtx(); };
+document.getElementById('ctxCopyUrl').onclick = () => {
+  const item = items.find(i=>i.id===ctxId);
+  if(item) { navigator.clipboard?.writeText(item.url); showToast('URL copied'); }
+  closeCtx();
+};
+document.getElementById('ctxDelete').onclick = () => { deleteItem(ctxId); closeCtx(); };
+
+function closeCtx() { document.getElementById('ctxMenu').classList.remove('open'); ctxId=null; }
+document.addEventListener('click', ()=>closeCtx());
+document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ closeCtx(); closeEditModal(); } });
+
+// ────────────────────────────────────────────────────────
+// DRAG TO REORDER
+// ────────────────────────────────────────────────────────
+function bindDrag(card) {
+  card.addEventListener('dragstart', e => {
+    dragSrc = card.dataset.id;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+  });
+  card.addEventListener('dragend', () => {
+    card.classList.remove('dragging');
+    document.querySelectorAll('.card').forEach(c=>c.style.outline='');
+    dragSrc = null;
+  });
+  card.addEventListener('dragover', e => {
+    e.preventDefault();
+    if (card.dataset.id !== dragSrc) card.style.outline = '2px solid var(--accent)';
+  });
+  card.addEventListener('dragleave', () => card.style.outline='');
+  card.addEventListener('drop', e => {
+    e.preventDefault();
+    card.style.outline='';
+    if (!dragSrc || card.dataset.id === dragSrc) return;
+    const srcIdx = items.findIndex(i=>i.id===dragSrc);
+    const dstIdx = items.findIndex(i=>i.id===card.dataset.id);
+    if (srcIdx<0||dstIdx<0) return;
+    const [moved] = items.splice(srcIdx,1);
+    items.splice(dstIdx,0,moved);
+    persist(); render();
+  });
+}
+
+// ────────────────────────────────────────────────────────
+// SHARE URL HANDLER  (?url=&title=&text=)
+// ────────────────────────────────────────────────────────
+function handleShareParams() {
+  const p = new URLSearchParams(window.location.search);
+  const url = p.get('url') || p.get('u') || p.get('link');
+  const title = p.get('title') || p.get('t') || p.get('text') || '';
+  const tags = parseTags(p.get('tags') || p.get('tag') || '');
+  if (!url) return;
+
+  const banner = document.getElementById('incoming');
+  const txt = document.getElementById('incomingTxt');
+  banner.style.display = 'flex';
+  txt.textContent = 'Saving from share… ' + getDomain(url);
+
+  setTimeout(() => {
+    const res = addItem(url, title, tags);
+    banner.style.display = 'none';
+    if (res === 'dupe') showToast('Already in your pile');
+    else if (res) { showToast('✓ Saved from share!'); render(); }
+    window.history.replaceState({}, '', window.location.pathname);
+  }, 900);
+}
+
+// ────────────────────────────────────────────────────────
+// KEYBOARD SHORTCUT
+// ────────────────────────────────────────────────────────
+document.getElementById('urlInput').addEventListener('keydown', e=>{if(e.key==='Enter')addFromForm();});
+document.getElementById('titleInput').addEventListener('keydown', e=>{if(e.key==='Enter')addFromForm();});
+document.getElementById('tagInput').addEventListener('keydown', e=>{if(e.key==='Enter')addFromForm();});
+
+// ────────────────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────────────────
+hydrate();
+handleShareParams();
+render();
+</script>
+</body>
+</html>
